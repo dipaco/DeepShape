@@ -3,7 +3,7 @@ scikit-learn
 importlib
 matplotlib
 pandas
-bcolz
+#bcolz -> install better using easy_install -U bcolz
 tensorflow
 h5py
 Pillow
