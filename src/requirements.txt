@@ -6,3 +6,4 @@ pandas
 bcolz
 tensorflow
 h5py
+Pillow
