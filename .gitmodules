@@ -1,0 +1,3 @@
+[submodule "src/phd_dapatinoco"]
+	path = src/phd_dapatinoco
+	url = https://github.com/dipaco/phd-dapatinoco.git

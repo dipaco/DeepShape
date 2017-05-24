@@ -1,0 +1,8 @@
+keras==1.2.2
+scikit-learn
+importlib
+matplotlib
+pandas
+bcolz
+tensorflow
+h5py
