@@ -1,5 +1,6 @@
 keras==1.2.2
 scikit-learn
+scikit-image
 importlib
 matplotlib
 pandas
