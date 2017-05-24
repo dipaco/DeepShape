@@ -4,6 +4,7 @@ import argparse
 import os
 from phd_dapatinoco.phd_tools.datasets import MPEG7Dataset
 from skimage.io import imsave
+from skimage.morphology import medial_axis
 
 parser = argparse.ArgumentParser(description='Create an augmented dataset out of the MPEG7 shape database')
 parser.add_argument('-s', '--source', help='Source folder', required=True)
@@ -23,4 +24,10 @@ for i in range(dataset.num_images):
     image_dir = os.path.join(output_dir, 'train', image_name[:idx])
     if not os.path.exists(image_dir):
         os.makedirs(image_dir)
-    imsave(os.path.join(image_dir, dataset.image_names[i] + '.jpg'), dataset.get_image_data(i))
+
+    image = dataset.get_image_data(i)
+
+    _, distance = medial_axis(image, return_distance=True)
+    distance = (255 * distance / distance.max()).astype('uint8')
+
+    imsave(os.path.join(image_dir, dataset.image_names[i] + '.jpg'), distance)
