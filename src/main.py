@@ -3,7 +3,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 #%matplotlib inline
 path = '../data/db/'
-model_path = 'data/db/models/'
+model_path = '../data/db/models/'
 import importlib
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import confusion_matrix
