@@ -48,10 +48,11 @@ model_pklot.model.load_weights(model_path+'vgg_pklot.h5')
 imgs,labels = next(val_batches)
 plots(imgs, titles=labels)
 #model_pklot.classes[:2] = ['Empty', 'Occupied']
-model_pklot.classes[:70] = [str(i) for i in 70]
+model_pklot.classes[:70] = [str(i) for i in range(70)]
 model_pklot.predict(imgs, True)
 
-model_pklot.model.load_weights(model_path+'vgg_pklotT.h5')
+
+'''model_pklot.model.load_weights(model_path+'vgg_pklotT.h5')
 path_val = path + 'validsunny'
 val_data = get_data(path_val)
 val_batches = model_pklot.get_batches(path_val)
@@ -64,4 +65,4 @@ cm = confusion_matrix(val_classes, val[1])
 cm_dict = {}
 for i in range(70):
     cm_dict[str(i)] = i
-plot_confusion_matrix(cm, {'Empty':0, 'Occupied':1})
+plot_confusion_matrix(cm, {'Empty':0, 'Occupied':1})'''
