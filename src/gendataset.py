@@ -13,6 +13,7 @@ from skimage.morphology import medial_axis
 from skimage.transform import rotate, ProjectiveTransform, warp
 from glob import glob
 from os.path import join
+from phd_dapatinoco.phd_tools.data_augmentation import apply_transform
 
 
 
@@ -62,57 +63,6 @@ transformations = [
     ['rotation', 'projective'],
     ['rotation', 'projective'],
 ]
-
-
-def apply_transform(image, image_name, transformations):
-    """
-    Apply a set of transformations to an image for data augmentation
-    Args:
-        image:
-        image_name:
-        transformation:
-
-    Returns:
-
-    """
-    transformed_images = []
-    i = 0
-    a = 20
-    b = 80
-    for transformation in transformations:
-
-        # if the current transformation is a rotation
-        t_image = image
-        if 'identity' in transformation:
-            pass
-
-        if 'h_reflection' in transformation:
-            t_image = t_image[:, ::-1]
-
-        if 'rotation' in transformation:
-            angle = int(180 * np.random.rand())
-            t_image = rotate(t_image, angle, resize=True)
-
-        if 'projective' in transformation:
-            matrix = np.eye(3, 3)
-            matrix[2, 0] = (-1)**np.random.randint(2) * (np.random.randint(a, b) / 100000.0)
-            matrix[2, 0] = np.random.randint(-80, 80) / 100000.0
-            matrix[2, 1] = np.random.randint(-80, 80) / 100000.0
-            output_shape = (int(1.5 * t_image.shape[0]), int(1.5 * t_image.shape[1]))
-
-            tf = ProjectiveTransform(matrix=matrix)
-            t_image = warp(t_image, tf, output_shape=output_shape)
-
-        if np.random.randint(2) == 0:
-            t_image = t_image[:, ::-1]
-
-        if np.random.randint(2) == 0:
-            t_image = t_image[::-1, :]
-
-        transformed_images.append((t_image, image_name + '_' + str(i)))
-        i += 1
-
-    return transformed_images
 
 # Generate the
 for i in range(dataset.num_images):
