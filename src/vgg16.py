@@ -6,6 +6,7 @@ import numpy as np
 from scipy import misc, ndimage
 from scipy.ndimage.interpolation import zoom
 
+from keras.utils.data_utils import get_file
 from keras import backend as K
 from keras.layers.normalization import BatchNormalization
 from keras.utils.data_utils import get_file
@@ -28,7 +29,8 @@ class Vgg16():
 
 
     def __init__(self):
-        self.FILE_PATH = 'http://files.fast.ai/models/'
+        #http://files.fast.ai/models/
+        self.FILE_PATH = 'http://www.platform.ai/models/'
         self.create()
         self.get_classes()
 
@@ -64,7 +66,7 @@ class Vgg16():
 
     def create(self):
         model = self.model = Sequential()
-        model.add(Lambda(vgg_preprocess, input_shape=(3,224,224), output_shape=(3,224,224)))
+        model.add(Lambda(vgg_preprocess, input_shape=(3,224,224)))
 
         self.ConvBlock(2, 64)
         self.ConvBlock(2, 128)
@@ -94,11 +96,11 @@ class Vgg16():
         self.compile()
 
     def finetune(self, batches):
-        self.ft(batches.nb_class)
-        classes = list(iter(batches.class_indices))
-        for c in batches.class_indices:
-            classes[batches.class_indices[c]] = c
-        self.classes = classes
+        model = self.model
+        model.pop()
+        for layer in model.layers[:-1]: layer.trainable=False
+        model.add(Dense(batches.nb_class, activation='softmax'))
+        self.compile()
 
 
     def compile(self, lr=0.001):
@@ -119,4 +121,3 @@ class Vgg16():
     def test(self, path, batch_size=8):
         test_batches = self.get_batches(path, shuffle=False, batch_size=batch_size, class_mode=None)
         return test_batches, self.model.predict_generator(test_batches, test_batches.nb_sample)
-

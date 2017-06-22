@@ -20,7 +20,7 @@ from utils import plots, get_data, plot_confusion_matrix
 
 # As large as you can, but no larger than 64 is recommended.
 # If you have an older or cheaper GPU, you'll run out of memory, so will have to decrease this.
-batch_size = 4
+batch_size = 16
 # Import our class, and instantiate
 import vgg16; reload(vgg16)
 from vgg16 import Vgg16
