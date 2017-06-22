@@ -29,6 +29,7 @@ class Vgg16():
 
 
     def __init__(self):
+        #http://files.fast.ai/models/
         self.FILE_PATH = 'http://www.platform.ai/models/'
         self.create()
         self.get_classes()
