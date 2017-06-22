@@ -40,10 +40,33 @@ transformations = {
     }
 }
 
+transformations = [
+    ['identity'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+    ['rotation', 'projective'],
+]
 
-def apply_transform(image, image_name, transformation):
+
+def apply_transform(image, image_name, transformations):
     """
-    Recursively apply a set of transformations to an image for data augmentation
+    Apply a set of transformations to an image for data augmentation
     Args:
         image:
         image_name:
@@ -53,50 +76,41 @@ def apply_transform(image, image_name, transformation):
 
     """
     transformed_images = []
+    i = 0
+    a = 20
+    b = 80
+    for transformation in transformations:
 
-    # if the current transformation is a rotation
-    if transformation['type'] == 'rotation':
-        for angle in transformation['angles']:
+        # if the current transformation is a rotation
+        t_image = image
+        if 'identity' in transformation:
+            pass
 
-            # Calculates the rotation angle
-            if angle == 'identity':
-                angle = 0
-            elif angle == 'random':
-                angle = int(180 * np.random.rand())
-            elif angle == 'h_reflection':
-                image = image[:, ::-1]
-                angle = 0
+        if 'h_reflection' in transformation:
+            t_image = t_image[:, ::-1]
 
-            t_image = rotate(image, angle, resize=True)
-            print '\tApplying transformation: rotation ({0}º) to {1}'.format(angle, image_name)
+        if 'rotation' in transformation:
+            angle = int(180 * np.random.rand())
+            t_image = rotate(t_image, angle, resize=True)
 
-            if 'subtransformation' in transformation:
-                transformed_images += apply_transform(t_image, image_name + '_rotation_' + str(angle), transformation['subtransformation'])
-            else:
-                transformed_images.append((t_image, image_name + '_rotation_' + str(angle)))
-
-    elif transformation['type'] == 'projective':
-        i = 1
-        for relation in transformation['relations']:
-
-            # Calculates the rotation angle
+        if 'projective' in transformation:
             matrix = np.eye(3, 3)
-            output_shape = (image.shape[0], image.shape[1])
-            if relation == 'random':
-                matrix[2, 0] = np.random.randint(-80, 80) / 100000.0
-                matrix[2, 1] = np.random.randint(-80, 80) / 100000.0
-                output_shape = (int(1.5 * image.shape[0]), int(1.5 * image.shape[1]))
-
-            print '\tApplying projective transformation to {0}'.format(image_name)
+            matrix[2, 0] = (-1)**np.random.randint(2) * (np.random.randint(a, b) / 100000.0)
+            matrix[2, 0] = np.random.randint(-80, 80) / 100000.0
+            matrix[2, 1] = np.random.randint(-80, 80) / 100000.0
+            output_shape = (int(1.5 * t_image.shape[0]), int(1.5 * t_image.shape[1]))
 
             tf = ProjectiveTransform(matrix=matrix)
-            t_image = warp(image, tf, output_shape=output_shape)
-            if 'subtransformation' in transformation:
-                transformed_images += apply_transform(t_image, image_name + '_projective_' + str(matrix[2, 0]) + '-' + str(matrix[2, 1]), transformation['subtransformation'])
-            else:
-                transformed_images.append((t_image, image_name + '_projective_' + str(matrix[2, 0]) + '-' + str(matrix[2, 1])))
+            t_image = warp(t_image, tf, output_shape=output_shape)
 
-            i += 1
+        if np.random.randint(2) == 0:
+            t_image = t_image[:, ::-1]
+
+        if np.random.randint(2) == 0:
+            t_image = t_image[::-1, :]
+
+        transformed_images.append((t_image, image_name + '_' + str(i)))
+        i += 1
 
     return transformed_images
 
