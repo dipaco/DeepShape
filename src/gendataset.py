@@ -5,7 +5,7 @@ matplotlib.use('TkAgg')
 import warnings
 warnings.filterwarnings("ignore")
 from skimage.transform import resize
-from matplotlib.pyplot import imshow, show
+from matplotlib.pyplot import imshow, show, figure
 
 import argparse
 import os
@@ -85,7 +85,7 @@ for i in range(dataset.num_images):
 
     for t_image, t_image_name in transformed_images:
 
-        t_image = rescale_intensity(t_image, out_range=(0, 255))
+        t_image = rescale_intensity(t_image, out_range=(0, 255)) > 128
         props = regionprops(t_image.astype(int))
 
         if len(props) > 0:
@@ -97,17 +97,15 @@ for i in range(dataset.num_images):
             c_offset = int((max_length - t_image.shape[1]) / 2.0)
             n_image[r_offset:t_image.shape[0] + r_offset, c_offset:t_image.shape[1] + c_offset] = t_image
             n_image = 255 * (resize(n_image, output_shape=(32, 32)) > 0).astype(int)
-        else:
-            n_image = np.zeros((32, 32), dtype=int)
 
-        if generateDistance:
-            _, distance = medial_axis(n_image, return_distance=True)
-            final_image = (255 * distance / distance.max()).astype('uint8')
-        else:
-            final_image = n_image
+            if generateDistance:
+                _, distance = medial_axis(n_image, return_distance=True)
+                final_image = (255 * distance / distance.max()).astype('uint8')
+            else:
+                final_image = n_image
 
-        #imsave(os.path.join(image_dir, dataset.image_names[i] + '.jpg'), final_image)
-        imsave(os.path.join(image_dir, t_image_name + '.jpg'), final_image)
+            # imsave(os.path.join(image_dir, dataset.image_names[i] + '.jpg'), final_image)
+            imsave(os.path.join(image_dir, t_image_name + '.jpg'), final_image)
 
 # Move some data to the valid folder according to training_rate
 all_classes = glob(os.path.join(output_dir, 'train/*'))
