@@ -2,11 +2,16 @@
 # -*- coding: utf-8 -*-
 import matplotlib
 matplotlib.use('TkAgg')
+import warnings
+warnings.filterwarnings("ignore")
+from skimage.transform import resize
 from matplotlib.pyplot import imshow, show
 
 import argparse
 import os
 import numpy as np
+from skimage.measure import regionprops
+from skimage.exposure import rescale_intensity
 from phd_dapatinoco.phd_tools.datasets import MPEG7Dataset
 from skimage.io import imsave
 from skimage.morphology import medial_axis
@@ -79,11 +84,27 @@ for i in range(dataset.num_images):
     transformed_images = apply_transform(image, dataset.image_names[i], transformations)
 
     for t_image, t_image_name in transformed_images:
+
+        t_image = rescale_intensity(t_image, out_range=(0, 255))
+        props = regionprops(t_image.astype(int))
+
+        if len(props) > 0:
+            min_row, min_col, max_row, max_col = props[0]['bbox']
+            t_image = t_image[min_row:max_row, min_col:max_col]
+            max_length = int((1 + 0.1) * max(t_image.shape))
+            n_image = np.zeros((max_length, max_length), t_image.dtype)
+            r_offset = int((max_length - t_image.shape[0]) / 2.0)
+            c_offset = int((max_length - t_image.shape[1]) / 2.0)
+            n_image[r_offset:t_image.shape[0] + r_offset, c_offset:t_image.shape[1] + c_offset] = t_image
+            n_image = 255 * (resize(n_image, output_shape=(32, 32)) > 0).astype(int)
+        else:
+            n_image = np.zeros((32, 32), dtype=int)
+
         if generateDistance:
-            _, distance = medial_axis(t_image, return_distance=True)
+            _, distance = medial_axis(n_image, return_distance=True)
             final_image = (255 * distance / distance.max()).astype('uint8')
         else:
-            final_image = t_image
+            final_image = n_image
 
         #imsave(os.path.join(image_dir, dataset.image_names[i] + '.jpg'), final_image)
         imsave(os.path.join(image_dir, t_image_name + '.jpg'), final_image)
