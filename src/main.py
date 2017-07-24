@@ -22,7 +22,8 @@ from utils import plots, get_data, plot_confusion_matrix
 # If you have an older or cheaper GPU, you'll run out of memory, so will have to decrease this.
 batch_size = 16
 # Import our class, and instantiate
-import vgg16; reload(vgg16)
+import vgg16;
+reload(vgg16)
 from vgg16 import Vgg16
 
 model_pklot = Vgg16()
@@ -30,8 +31,8 @@ model_pklot = Vgg16()
 batches = model_pklot.get_batches(path+'train', batch_size=batch_size)
 val_batches = model_pklot.get_batches(path+'valid', batch_size=batch_size)
 imgs, labels = next(batches)
-plots(imgs, titles=labels)
-model_pklot.predict(imgs, True)
+#plots(imgs, titles=labels)
+#model_pklot.predict(imgs, True)
 
 '''Use our Vgg16 class to finetune the MPEG7 database model'''
 

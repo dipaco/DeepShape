@@ -18,7 +18,8 @@ from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
 
-vgg_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32).reshape((3,1,1))
+#vgg_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32).reshape((3,1,1))
+vgg_mean = np.array([84.4, 84.0, 84.0], dtype=np.float32).reshape((3, 1, 1))
 def vgg_preprocess(x):
     x = x - vgg_mean
     return x[:, ::-1] # reverse axis rgb->bgr
@@ -53,7 +54,7 @@ class Vgg16():
     def ConvBlock(self, layers, filters):
         model = self.model
         for i in range(layers):
-            model.add(ZeroPadding2D((1, 1)))
+            model.add(ZeroPadding2D((1, 1))) # Fills border to avoid resizing in the following filters
             model.add(Convolution2D(filters, 3, 3, activation='relu'))
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
@@ -66,7 +67,7 @@ class Vgg16():
 
     def create(self):
         model = self.model = Sequential()
-        model.add(Lambda(vgg_preprocess, input_shape=(3,224,224)))
+        model.add(Lambda(vgg_preprocess, input_shape=(3,32,32)))
 
         self.ConvBlock(2, 64)
         self.ConvBlock(2, 128)
@@ -80,11 +81,11 @@ class Vgg16():
         model.add(Dense(1000, activation='softmax'))
 
         fname = 'vgg16.h5'
-        model.load_weights(get_file(fname, self.FILE_PATH+fname, cache_subdir='models'))
+        #model.load_weights(get_file(fname, self.FILE_PATH+fname, cache_subdir='models'))
 
 
     def get_batches(self, path, gen=image.ImageDataGenerator(), shuffle=True, batch_size=8, class_mode='categorical'):
-        return gen.flow_from_directory(path, target_size=(224,224),
+        return gen.flow_from_directory(path, target_size=(32,32),
                 class_mode=class_mode, shuffle=shuffle, batch_size=batch_size)
 
 
@@ -98,7 +99,7 @@ class Vgg16():
     def finetune(self, batches):
         model = self.model
         model.pop()
-        for layer in model.layers[:-1]: layer.trainable=False
+        #for layer in model.layers[:-1]: layer.trainable=False
         model.add(Dense(batches.nb_class, activation='softmax'))
         self.compile()
 
